@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({Key? key}) : super(key: key);
+  AuthForm(this.submitFn);
+  final void Function(String email, String password, String username, bool isLogin) submitFn;
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -9,9 +10,10 @@ class AuthForm extends StatefulWidget {
 
 class _AuthFormState extends State<AuthForm> {
   final _formkey = GlobalKey<FormState>();
-  String _userEmail = '';
-  String _username = '';
-  String _userPassword = '';
+  var _isLogin = true;
+  var _userEmail = '';
+  var _username = '';
+  var _userPassword = '';
 
 
   void _trySubmit() {
@@ -19,9 +21,12 @@ class _AuthFormState extends State<AuthForm> {
     FocusScope.of(context).unfocus();
     if(isValid) {
       _formkey.currentState?.save();
-      print(_userEmail);
-      print(_username);
-      print(_userPassword);
+      widget.submitFn(
+        _userEmail,
+        _userPassword,
+        _username,
+        _isLogin
+      );
     }
   }
   @override
@@ -33,10 +38,12 @@ class _AuthFormState extends State<AuthForm> {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Form(
+              key: _formkey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextFormField(
+                    key: ValueKey('email'),
                     validator: (value) {
                       if (value!.isEmpty || !value.contains('@')) {
                         return 'Please enter a valid email address';
@@ -44,39 +51,46 @@ class _AuthFormState extends State<AuthForm> {
                       return null;
                     },
                     keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(labelText: 'Email Address'),
+                    decoration: const InputDecoration(labelText: 'Email Address'),
                     onSaved: (value) {
                       _userEmail = value as String;
                     },
                   ),
+                  if(!_isLogin)
                   TextFormField(
+                    key: ValueKey('username'),
                     validator: (value) {
                       if(value!.isEmpty || value.length < 2) {
-                        return 'Please Enter at least 2 characters';
+                        return 'Enter a valid username';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(labelText: 'Username'),
+                    decoration: const InputDecoration(labelText: 'Username'),
                     onSaved: (value) {
                       _username = value as String;
                     },
                   ),
                   TextFormField(
+                    key: ValueKey('password'),
                     validator: (value) {
                       if(value!.isEmpty || value.length < 7) {
                         return 'Password must be atleast 7 characters long';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(labelText: 'Password'),
+                    decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
                     onSaved: (value) {
                       _userPassword = value as String;
                     },
                   ),
-                  SizedBox(height: 12,),
-                  MaterialButton(onPressed: () => _trySubmit(), child: const Text("Login"), color: Theme.of(context).colorScheme.primary,),
-                  MaterialButton(onPressed: () {}, child: const Text("CREATE NEW ACCOUNT"), textColor: Theme.of(context).colorScheme.primary)
+                  const SizedBox(height: 12,),
+                  MaterialButton(onPressed: _trySubmit, child: Text(_isLogin ? "Login" : "Sign Up!"), color: Theme.of(context).colorScheme.primary,),
+                  MaterialButton(onPressed: () {
+                    setState(() {
+                      _isLogin = !_isLogin;
+                    });
+                  }, child: Text(_isLogin ? "CREATE NEW ACCOUNT" : "I already have an account"), textColor: Theme.of(context).colorScheme.primary)
                 ],
               ),
             ),
