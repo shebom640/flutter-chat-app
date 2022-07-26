@@ -5,13 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-          options: const FirebaseOptions(
-              apiKey: '',
-              appId: '1:556101013216:android:8ec3551c8ccbb6b1550a85',
-              messagingSenderId: '556101013216',
-              projectId: 'flutter-chat-4e113'))
-      .then((value) => print(value));
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -23,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chat App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: Colors.pink,
           backgroundColor: Colors.pink,
