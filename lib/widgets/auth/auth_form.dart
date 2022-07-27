@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  AuthForm(this.submitFn);
-  final void Function(String email, String password, String username, bool isLogin, BuildContext ctx) submitFn;
+  AuthForm(this.submitFn, this.isLoading);
+
+  final bool isLoading;
+  final void Function(String email, String password, String username,
+      bool isLogin, BuildContext ctx) submitFn;
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -15,21 +18,16 @@ class _AuthFormState extends State<AuthForm> {
   var _username = '';
   var _userPassword = '';
 
-
   void _trySubmit() {
     final isValid = _formkey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if(isValid) {
+    if (isValid) {
       _formkey.currentState?.save();
-      widget.submitFn(
-        _userEmail.trim(),
-        _userPassword.trim(),
-        _username.trim(),
-        _isLogin,
-        context
-      );
+      widget.submitFn(_userEmail.trim(), _userPassword.trim(), _username.trim(),
+          _isLogin, context);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -52,29 +50,30 @@ class _AuthFormState extends State<AuthForm> {
                       return null;
                     },
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email Address'),
+                    decoration:
+                        const InputDecoration(labelText: 'Email Address'),
                     onSaved: (value) {
                       _userEmail = value as String;
                     },
                   ),
-                  if(!_isLogin)
-                  TextFormField(
-                    key: ValueKey('username'),
-                    validator: (value) {
-                      if(value!.isEmpty || value.length < 2) {
-                        return 'Enter a valid username';
-                      }
-                      return null;
-                    },
-                    decoration: const InputDecoration(labelText: 'Username'),
-                    onSaved: (value) {
-                      _username = value as String;
-                    },
-                  ),
+                  if (!_isLogin)
+                    TextFormField(
+                      key: ValueKey('username'),
+                      validator: (value) {
+                        if (value!.isEmpty || value.length < 2) {
+                          return 'Enter a valid username';
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(labelText: 'Username'),
+                      onSaved: (value) {
+                        _username = value as String;
+                      },
+                    ),
                   TextFormField(
                     key: ValueKey('password'),
                     validator: (value) {
-                      if(value!.isEmpty || value.length < 7) {
+                      if (value!.isEmpty || value.length < 7) {
                         return 'Password must be atleast 7 characters long';
                       }
                       return null;
@@ -85,13 +84,27 @@ class _AuthFormState extends State<AuthForm> {
                       _userPassword = value as String;
                     },
                   ),
-                  const SizedBox(height: 12,),
-                  MaterialButton(onPressed: _trySubmit, child: Text(_isLogin ? "Login" : "Sign Up!"), color: Theme.of(context).colorScheme.primary,),
-                  MaterialButton(onPressed: () {
-                    setState(() {
-                      _isLogin = !_isLogin;
-                    });
-                  }, child: Text(_isLogin ? "CREATE NEW ACCOUNT" : "I already have an account"), textColor: Theme.of(context).colorScheme.primary)
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  if (widget.isLoading) CircularProgressIndicator(),
+                  if (!widget.isLoading)
+                    MaterialButton(
+                      onPressed: _trySubmit,
+                      child: Text(_isLogin ? "Login" : "Sign Up!"),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  if (!widget.isLoading)
+                    MaterialButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLogin = !_isLogin;
+                          });
+                        },
+                        child: Text(_isLogin
+                            ? "CREATE NEW ACCOUNT"
+                            : "I already have an account"),
+                        textColor: Theme.of(context).colorScheme.primary)
                 ],
               ),
             ),
